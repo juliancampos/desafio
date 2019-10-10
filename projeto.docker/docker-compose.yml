@@ -1,0 +1,146 @@
+version: '3'
+
+volumes:
+  node_modules-analytical:
+    driver: local
+  node_modules-consumer:
+    driver: local
+  deploy:
+    driver: local
+  esdata:
+
+services:
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: a
+      ME_CONFIG_BASICAUTH_PASSWORD: b
+      ME_CONFIG_MONGODB_PORT: 27017
+      #ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      #ME_CONFIG_MONGODB_ADMINPASSWORD: 123456
+    links:
+      - mongodb
+    networks: 
+      - mongo-compose-network
+
+  mongodb:
+    image: mongo:4.0.4
+    volumes:
+      - ../MongoDB:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: 123456
+      MONGO_INITDB_DATABASE: desafio
+    networks:
+    - mongo-compose-network
+
+  analytical-api-package:
+    image: node:8-slim
+    working_dir: /usr/src/app
+    volumes:
+      - ../analytical-api:/usr/src/app
+      - node_modules-analytical:/usr/src/app/node_modules
+      - deploy:/root/deploy
+    
+    command: >
+      sh -x -c "
+      mkdir -p  /root/deploy/analytical && 
+      npm install --production && 
+      tar czf /root/deploy/analytical/application.tgz . "
+
+  analytical-api:
+    image: node:8-slim
+    working_dir: /usr/share/app
+    volumes:
+      - deploy:/root/deploy
+    ports:
+      - 3001:3001
+    command: >
+      sh -x -c "
+      tar -xzf /root/deploy/analytical/application.tgz -C . && 
+      npm start"
+
+  postgresdb:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "15432:5432"
+    volumes:
+      - ../postgresDB:/var/lib/postgresql/data
+    networks: 
+      - postgres-compose-network
+  
+  sqs:
+    image: roribio16/alpine-sqs
+    ports:                             
+      - "9324:9324"                             
+      - "9325:9325"                           
+    volumes:                             
+      - ./config/elasticmq.conf:/opt/config/elasticmq.conf
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "pgadmin@hotmail.com"
+      PGADMIN_DEFAULT_PASSWORD: 123456
+    ports:
+      - 10543:80
+    depends_on:
+      - postgresdb
+    networks:
+      - postgres-compose-network
+
+  consumer-api-package:
+    image: node:8-slim
+    working_dir: /usr/src/app
+    volumes:
+      - ../consumer-api:/usr/src/app
+      - node_modules-consumer:/usr/src/app/node_modules
+      - deploy:/root/deploy
+    command: >
+      sh -x -c "
+      mkdir -p /root/deploy/consumer && 
+      npm install --production && 
+      tar czf /root/deploy/consumer/application.tgz . "
+  
+  consumer-api:
+    image: node:8-slim
+    working_dir: /usr/share/app
+    volumes:
+      - deploy:/root/deploy
+    ports:
+      - 3000:3000
+    command: >
+      sh -x -c "
+      tar -xzf /root/deploy/consumer/application.tgz -C . && 
+      npm start"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    logging:
+      driver: none
+    ports:
+      - 9300:9300
+      - 9200:9200
+    networks:
+      - esnet
+   
+networks:
+  mongo-compose-network:
+    driver: bridge
+  postgres-compose-network:
+    driver: bridge
+  esnet:
+    driver: bridge

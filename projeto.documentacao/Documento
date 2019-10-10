@@ -1,0 +1,33 @@
+Base A - Consumer
+- Dados críticos
+- Protegida por níveis de segurança
+- Não precisa ser performático
+- Dados: 
+      CPF; Nome; Endereço; Lista de Dívidas;
+Postgres – (pg_hba.conf,  auth_delay, pgcrypto, views(evitar update sem where) )
+Backup
+Usuário de conexão utilizado na aplicação não deve ser o dono dos objetos no banco
+
+Base B - Learning
+- Dados críticos
+- Acesso mais rápido
+- Extração de dados para aprendizagem de máquina
+- Cálculo de Rating
+- Dados:
+      Idade; Lista de Bens; Endereço; Fonte de Renda;
+Elasticsearch – AWS ELK (Elasticsearch, Logstash e kibana)
+Backup
+
+
+Base C - Analytical
+- Não possui dados críticos
+- Acesso extremamente rápido
+- Rastrear eventos relacionados a um determinado CPF
+- Ultima consulta do CPF em um Bureau de crédito
+- Movimentação financeira nesse CPF
+- Dados da ultima compra com cartão de crédito vinculado ao CPF
+Mongodb
+
+Micro-serviços e Nano-serviços
+https://blog.logrocket.com/full-text-search-with-node-js-and-elasticsearch-on-docker/
+https://medium.com/better-programming/how-to-emulate-aws-sqs-for-development-in-dockerized-ruby-on-rails-app-c0c16aadb84c

@@ -1,0 +1,4 @@
+app:
+  port: 3003
+elasticsearch:
+  url: http://localhost:9200

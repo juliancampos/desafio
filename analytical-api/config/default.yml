@@ -1,0 +1,9 @@
+app:
+  name: analytical-api
+  port: 3001
+database:
+  name: analytical-api
+  # url: http://10.0.0.6:27017/
+  user: mongo
+  password: senha
+  connection: mongodb://10.0.0.162:27017/analytical-api

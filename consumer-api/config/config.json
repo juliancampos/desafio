@@ -1,0 +1,9 @@
+{
+  "username": "postgres",
+  "password": "123456",
+  "database": "consumer-api-db",
+  "host": "localhost",
+  "dialect": "postgres",
+  "logging": true,
+  "quoteIdentifiers": true
+}

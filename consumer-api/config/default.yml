@@ -1,0 +1,12 @@
+app:
+  name: consumer-api
+  port: 3001
+database:
+  host: 10.0.0.6:15432
+  dialect: postgres
+  # connection: postgres://postgres:123456@10.0.0.162:15432/consumer-api-db
+  connection: postgres://postgres:123456@localhost:5432/consumer-api-db
+sqs:
+  queueBaseUrl: "http://sqs:9324" # 'http://localhost:9324/queue'
+  accountId: '123'
+  SQS_REGION: "ap-southeast-1"

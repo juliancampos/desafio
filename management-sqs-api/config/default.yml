@@ -1,0 +1,8 @@
+app:
+  name: management-sqs-api
+  port: 3003
+sqs:
+  queueBaseUrl: 'http://sqs:9324' # 'http://localhost:9324/queue'
+  accountId: '123'
+  SQS_REGION: 'us-east-1'
+  apiVersion: '2019-10-09'
